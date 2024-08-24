@@ -1,47 +1,55 @@
 #include <bits/stdc++.h>
+#include <chrono>
+
+#include "include/IOModule.h"
 
 using namespace std;
-
-const int PAGETABLE_ENTRY_SIZE;
-const int PAGETABLE_SIZE;
+using namespace std::chrono;
 
 class PerformanceModule
 {
     public:
         PerformanceModule()
         {
-            // initialize the total no. of pages, memory per page (maybe? idk)
-        }
-
-        void allocateTaskMemory(int taskID)
-        {
-            // maps the task ID to the memory allocated to it
-        }
-
-        void deallocateTaskMemory(int taskID)
-        {
-            // remove the map entry of the given task ID
-        }
-
-        // return the total memory required for page tables
-        int getTotalMemory()
-        {
-            return PAGETABLE_ENTRY_SIZE * PAGETABLE_SIZE;
-        }
-
-        // return the total memory - memory allocated to each task
-        int getFreeMemory()
-        {
+            // create 3 implementations of IOModule
+            // measure the execution time of each implementation
             
-            int memoryUsed = 0;
-            for (int i = 0; i < taskMemory.size(); i++)
-            {
-                memoryUsed += taskMemory[i];
-            }
+            // single level page table
+            auto start = high_resolution_clock::now();
+            IOModule ioModuleSingleLevel(0);
+            auto stop = high_resolution_clock::now();
+
+            auto duration = duration_cast<microseconds>(stop - start);
+            executionTimes[0] = duration.count();
             
-            return getTotalMemory() - memoryUsed;
+            // two level page table
+            auto start = high_resolution_clock::now();
+            IOModule ioModuleTwoLevel(1);
+            auto stop = high_resolution_clock::now();
+
+            auto duration = duration_cast<microseconds>(stop - start);
+            executionTimes[1] = duration.count();
+            
+            // map page table
+            auto start = high_resolution_clock::now();
+            IOModule ioModuleMap(2);
+            auto stop = high_resolution_clock::now();
+
+            auto duration = duration_cast<microseconds>(stop - start);
+            executionTimes[2] = duration.count();
+            
+
+            // for each implementation, report:
+
+            // - execution time
+
+            // - physical memory allocated to each task
+            // ioModule.getTaskMemoryAllocated();
+
+            // total memory for page table
+            // - free physical memory
         }
+
     private:
-        // maps task ID to allocated space
-        map<int, int> taskMemory;
+        float executionTimes[3];
 };

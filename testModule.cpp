@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 
+#include "include/IOModule.h"
+#include "include/performanceModule.h"
+
 using namespace std;
 
 int main()
@@ -10,15 +13,13 @@ int main()
     // generate trace file with the format taskID:logicalAddress:size
     generateTraceFile(numberOfTasks);
 
-    // initialize the memory manager
-    // MemoryManager memoryManager(numberOfTasks);
-
     // initialize the performance module
-    // PerformanceModule performanceModule;
+    PerformanceModule performanceModule;
 
-    // initialize the I/O module
-    // IOModule ioModule;
-
+    // // make 3 implementations of the IOModule class for single-level, multiple-level and map
+    // IOModule ioModule(0);
+    // IOModule ioModule(1);
+    // IOModule ioModule(2);
     return 0;
 }
 

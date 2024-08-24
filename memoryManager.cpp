@@ -1,23 +1,24 @@
 #include <bits/stdc++.h>
 
+#include "include/config.h"
+
 using namespace std;
 
-// values to be read from config.h
-const int PAGE_SIZE = 1024; // 1KB
-const int PHYSICAL_MEMORY_SIZE = 65536; // 64KB
-const int VIRTUAL_MEMORY_SIZE = 65536; // 64KB
+// const int PAGE_SIZE = 1024; // 1KB
+// const int PHYSICAL_MEMORY_SIZE = 65536; // 64KB
+// const int VIRTUAL_MEMORY_SIZE = 65536; // 64KB
 
 class MemoryManager
 {
     public:
         // create the required no. of pages initially
-        MemoryManager(int numberOfTasks)
+        MemoryManager()
         {
-            
+            // read the config.h file to get the values of PAGE_SIZE, PHYSICAL_MEMORY_SIZE, VIRTUAL_MEMORY_SIZE
         }
         
         // gives a physical page address 
-        vector<int> allocatePage(int taskID, int size)
+        vector<int> allocatePages(int size)
         {
             vector<int> physicalPagesAllocated;
 
@@ -46,6 +47,29 @@ class MemoryManager
             }
             // return the indexes of the physical pages allocated
             return physicalPagesAllocated;
+        }
+
+        int getPageSize()
+        {
+            return PAGE_SIZE;
+        }
+
+        int getPhysicalMemorySize()
+        {
+            return PHYSICAL_MEMORY_SIZE;
+        }
+
+        int getFreePhysicalMemory()
+        {
+            int freeMemory = 0;
+            for (int i = 0; i < sizeof(physicalPages) / sizeof(int); i++)
+            {
+                if (physicalPages[i] == 0)
+                {
+                    freeMemory += PAGE_SIZE;
+                }
+            }
+            return freeMemory;
         }
 
     private:

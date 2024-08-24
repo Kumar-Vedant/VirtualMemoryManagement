@@ -1,0 +1,3 @@
+const int PAGE_SIZE = 1024; // 1KB
+const int PHYSICAL_MEMORY_SIZE = 65536; // 64KB
+const int VIRTUAL_MEMORY_SIZE = 65536; // 64KB
