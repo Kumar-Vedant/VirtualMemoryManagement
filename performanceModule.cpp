@@ -2,6 +2,9 @@
 
 using namespace std;
 
+const int PAGETABLE_ENTRY_SIZE;
+const int PAGETABLE_SIZE;
+
 class PerformanceModule
 {
     public:
@@ -20,14 +23,25 @@ class PerformanceModule
             // remove the map entry of the given task ID
         }
 
-        int getTotalMemory(){
-            // return the total memory 
+        // return the total memory required for page tables
+        int getTotalMemory()
+        {
+            return PAGETABLE_ENTRY_SIZE * PAGETABLE_SIZE;
         }
 
-        int getFreeMemory(){
-            // return the total memory - memory allocated to each task
+        // return the total memory - memory allocated to each task
+        int getFreeMemory()
+        {
+            
+            int memoryUsed = 0;
+            for (int i = 0; i < taskMemory.size(); i++)
+            {
+                memoryUsed += taskMemory[i];
+            }
+            
+            return getTotalMemory() - memoryUsed;
         }
     private:
         // maps task ID to allocated space
-        unordered_map<int, vector<int>> taskMemory;
+        map<int, int> taskMemory;
 };
