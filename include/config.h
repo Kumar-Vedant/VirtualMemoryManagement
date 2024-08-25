@@ -20,8 +20,8 @@ const size_t PHYSICAL_PAGES = PHYSICAL_MEMORY_SIZE/PAGE_SIZE;
 
 
 // multi level page table
-const size_t pts1 = (int) floor((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
-const size_t pts2 = (int) ceil((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
+const size_t PTS_1 = (int) floor((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
+const size_t PTS_2 = (int) ceil((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
 const size_t PAGE_TABLE_SIZE_1 = 1 << (int) floor((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
 const size_t PAGE_TABLE_SIZE_2 = 1 << (int) ceil((BITS_VIRTUAL_SPACE - BITS_PAGE_SIZE)/2);
 const size_t PTE_SIZE_1 = BITS_PHYSICAL_SPACE;

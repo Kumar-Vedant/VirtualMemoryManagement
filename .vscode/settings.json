@@ -4,6 +4,7 @@
     "deque": "cpp",
     "string": "cpp",
     "stdexcept": "cpp",
-    "bitset": "cpp"
+    "bitset": "cpp",
+    "chrono": "cpp"
   }
 }

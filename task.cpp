@@ -21,12 +21,14 @@ class TaskMap
             vector<int> physicalPages = memoryManager.allocatePages(size);
             
             // calculate the logical address of the first page required
-            // int startingPageNumber = ;
+            string binaryAddress = hexToBin(logicalAddress);
+            // remove the offset bits from the logical address
+            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
 
             // store the physical address returned by the memory manager
             for (int i = 0; i < physicalPages.size(); i++)
             {
-                // pageTable[startingPageNumber + i] = physicalPages[i];
+                pageTable[startingPageNumber + i] = physicalPages[i];
             }
         }
         int getTaskID()
@@ -56,7 +58,7 @@ class TaskSingleLevel
             vector<int> physicalPages = memoryManager.allocatePages(size);
             
             // calculate the page number of the first page required from the logical address
-            
+
             string binaryAddress = hexToBin(logicalAddress);
             // remove the offset bits from the logical address
             long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
@@ -64,6 +66,16 @@ class TaskSingleLevel
             // store the physical address returned by the memory manager
             for (int i = 0; i < physicalPages.size(); i++)
             {
+                // if the page number is greater than the number of virtual pages, report page table miss
+                if (startingPageNumber + i >= VIRTUAL_PAGES)
+                {
+                    cout << "Page table miss" << endl;
+                }
+                // if the page is already allocated, report page table hit
+                if (pageTable[startingPageNumber + i] != 0)
+                {
+                    cout << "Page table hit" << endl;
+                }
                 pageTable[startingPageNumber + i] = physicalPages[i];
             }
         }
@@ -89,19 +101,34 @@ class TaskTwoLevel
         {
             // call the memory manager's allocatePages function for the required size
             vector<int> physicalPages = memoryManager.allocatePages(size);
+
+            // convert the logical address to binary
+            string binaryAddress = hexToBin(logicalAddress);
+            // remove the offset bits from the logical address
+            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
             
             // calculate the page number of the first page required in the 1st level page table from the logical address
-            // int startingPageNumber1 = ;
+            long startingPageNumber1 = trimBinaryToDecimal(to_string(startingPageNumber), PTS_1);
 
             // calculate the page number of the first page required in the 2nd level page table from the logical address
-            // int startingPageNumber2 = ;
+            long startingPageNumber2 = trimBinaryToDecimal(to_string(startingPageNumber).substr(PTS_2), 0);
 
             // store the physical address returned by the memory manager
             for (int i = 0; i < physicalPages.size(); i++)
             {
-                // store the physical page number in the correct matrix element
+                // if the page number is greater than the number of virtual pages, report page table miss
+                if (startingPageNumber1 >= PAGE_TABLE_SIZE_1 || startingPageNumber2 + i >= PAGE_TABLE_SIZE_2)
+                {
+                    cout << "Page table miss" << endl;
+                }
+                // if the page is already allocated, report page table hit
+                if (pageTable[startingPageNumber1][startingPageNumber2 + i] != 0)
+                {
+                    cout << "Page table hit" << endl;
+                }
 
-                // pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
+                // store the physical page number in the correct matrix element
+                pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
             }
         }
         int getTaskID()
