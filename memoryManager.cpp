@@ -4,21 +4,15 @@
 
 using namespace std;
 
-// const int PAGE_SIZE = 1024; // 1KB
-// const int PHYSICAL_MEMORY_SIZE = 65536; // 64KB
-// const int VIRTUAL_MEMORY_SIZE = 65536; // 64KB
-
 class MemoryManager
 {
     public:
-        // create the required no. of pages initially
         MemoryManager()
         {
-            // read the config.h file to get the values of PAGE_SIZE, PHYSICAL_MEMORY_SIZE, VIRTUAL_MEMORY_SIZE
+            // convert the memory size from config.h to bytes
         }
-        
         // gives a physical page address 
-        vector<int> allocatePages(int size)
+        vector<int> allocatePages(long long size)
         {
             vector<int> physicalPagesAllocated;
 
@@ -37,7 +31,6 @@ class MemoryManager
                     physicalPagesAllocated.push_back(i);
                 }
 
-                // if no page is available, return error
                 
                 // if all required pages are allocated, break
                 if (physicalPagesAllocated.size() == numberOfPages)
@@ -45,18 +38,14 @@ class MemoryManager
                     break;
                 }
             }
+            // if no page is available, return error
+            if (physicalPagesAllocated.size() < numberOfPages)
+            {
+                cout << "Error: Not enough memory available" << endl;
+            }
+            
             // return the indexes of the physical pages allocated
             return physicalPagesAllocated;
-        }
-
-        int getPageSize()
-        {
-            return PAGE_SIZE;
-        }
-
-        int getPhysicalMemorySize()
-        {
-            return PHYSICAL_MEMORY_SIZE;
         }
 
         int getFreePhysicalMemory()
@@ -74,5 +63,5 @@ class MemoryManager
 
     private:
         // initialize all elements in the physical page table to 0(unallocated)
-        int physicalPages[PHYSICAL_MEMORY_SIZE / PAGE_SIZE] = {0};
+        int physicalPages[PHYSICAL_PAGES] = {0};
 };

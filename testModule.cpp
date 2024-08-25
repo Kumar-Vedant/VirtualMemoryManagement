@@ -3,6 +3,7 @@
 
 #include "include/IOModule.h"
 #include "include/performanceModule.h"
+#include "include/config.h"
 
 using namespace std;
 
@@ -16,10 +17,6 @@ int main()
     // initialize the performance module
     PerformanceModule performanceModule;
 
-    // // make 3 implementations of the IOModule class for single-level, multiple-level and map
-    // IOModule ioModule(0);
-    // IOModule ioModule(1);
-    // IOModule ioModule(2);
     return 0;
 }
 

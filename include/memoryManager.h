@@ -6,6 +6,6 @@ class MemoryManager
 {
     public:
         MemoryManager();
-        vector<int> allocatePages(int size);
+        vector<int> allocatePages(long long size);
         int getFreePhysicalMemory();
 };

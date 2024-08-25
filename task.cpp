@@ -1,72 +1,12 @@
 #include <bits/stdc++.h>
+#include <sstream>
+#include <bitset>
 
 #include "include/memoryManager.h"
+#include "include/config.h"
 
-const int PAGE_SIZE = 1024; // 1KB
-const int PHYSICAL_MEMORY_SIZE = 65536; // 64KB
-const int VIRTUAL_MEMORY_SIZE = 65536; // 64KB
+using namespace std;
 
-class TaskSingleLevel
-{
-    public:
-        TaskSingleLevel(int taskID, MemoryManager memoryManager)
-        {
-            this->taskID = taskID;
-            this->memoryManager = memoryManager;
-        }
-        void allocateMemory(int logicalAddress, int size)
-        {
-            // call the memory manager's allocatePages function for the required size
-            vector<int> physicalPages = memoryManager.allocatePages(size);
-            
-            // calculate the logical address of the first page required
-            // int startingPageNumber = ;
-
-            // store the physical address returned by the memory manager
-            for (int i = 0; i < physicalPages.size(); i++)
-            {
-                // pageTable[startingPageNumber + i] = physicalPages[i];
-            }
-        }
-
-    private:
-        int taskID;
-        MemoryManager memoryManager;
-        int pageTable[VIRTUAL_MEMORY_SIZE / PAGE_SIZE];
-};
-class TaskTwoLevel
-{
-    public:
-        TaskTwoLevel(int taskID, MemoryManager memoryManager)
-        {
-            this->taskID = taskID;
-            this->memoryManager = memoryManager;
-        }
-        void allocateMemory(int logicalAddress, int size)
-        {
-            // call the memory manager's allocatePages function for the required size
-            vector<int> physicalPages = memoryManager.allocatePages(size);
-            
-            // calculate the logical address of the first page required
-            // int startingPageNumber = ;
-
-            // store the physical address returned by the memory manager
-            for (int i = 0; i < physicalPages.size(); i++)
-            {
-                // store the physical page number in the correct matrix element
-
-                // pageTable[startingPageNumber + i][] = physicalPages[i];
-            }
-        }
-
-    private:
-        int taskID;
-        MemoryManager memoryManager;
-
-        // make a matrix for page tables
-        // int pageTable[VIRTUAL_MEMORY_SIZE / PAGE_SIZE][VIRTUAL_MEMORY_SIZE / PAGE_SIZE];
-
-};
 class TaskMap
 {
     public:
@@ -75,7 +15,7 @@ class TaskMap
             this->taskID = taskID;
             this->memoryManager = memoryManager;
         }
-        void allocateMemory(int logicalAddress, int size)
+        void allocateMemory(string logicalAddress, long long size)
         {
             // call the memory manager's allocatePages function for the required size
             vector<int> physicalPages = memoryManager.allocatePages(size);
@@ -88,6 +28,10 @@ class TaskMap
             {
                 // pageTable[startingPageNumber + i] = physicalPages[i];
             }
+        }
+        int getTaskID()
+        {
+            return taskID;
         }
 
     private:
@@ -97,3 +41,100 @@ class TaskMap
         // make a map for page tables
         map<int, int> pageTable;
 };
+
+class TaskSingleLevel
+{
+    public:
+        TaskSingleLevel(int taskID, MemoryManager memoryManager)
+        {
+            this->taskID = taskID;
+            this->memoryManager = memoryManager;
+        }
+        void allocateMemory(string logicalAddress, long long size)
+        {
+            // call the memory manager's allocatePages function for the required size
+            vector<int> physicalPages = memoryManager.allocatePages(size);
+            
+            // calculate the page number of the first page required from the logical address
+            
+            string binaryAddress = hexToBin(logicalAddress);
+            // remove the offset bits from the logical address
+            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
+
+            // store the physical address returned by the memory manager
+            for (int i = 0; i < physicalPages.size(); i++)
+            {
+                pageTable[startingPageNumber + i] = physicalPages[i];
+            }
+        }
+        int getTaskID()
+        {
+            return taskID;
+        }
+    private:
+        int taskID;
+        MemoryManager memoryManager;
+        int pageTable[VIRTUAL_PAGES];
+
+};
+class TaskTwoLevel
+{
+    public:
+        TaskTwoLevel(int taskID, MemoryManager memoryManager)
+        {
+            this->taskID = taskID;
+            this->memoryManager = memoryManager;
+        }
+        void allocateMemory(string logicalAddress, long long size)
+        {
+            // call the memory manager's allocatePages function for the required size
+            vector<int> physicalPages = memoryManager.allocatePages(size);
+            
+            // calculate the page number of the first page required in the 1st level page table from the logical address
+            // int startingPageNumber1 = ;
+
+            // calculate the page number of the first page required in the 2nd level page table from the logical address
+            // int startingPageNumber2 = ;
+
+            // store the physical address returned by the memory manager
+            for (int i = 0; i < physicalPages.size(); i++)
+            {
+                // store the physical page number in the correct matrix element
+
+                // pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
+            }
+        }
+        int getTaskID()
+        {
+            return taskID;
+        }
+
+    private:
+        int taskID;
+        MemoryManager memoryManager;
+
+        // make a matrix for page tables
+        int pageTable[PAGE_TABLE_SIZE_1][PAGE_TABLE_SIZE_2];
+
+};
+
+string hexToBin(const string& s) 
+{
+    stringstream ss;
+    ss << hex << s;
+    unsigned n;
+    ss >> n;
+    bitset<32> bin(n);
+
+    // Convert the resulting binary back to a string
+    return bin.to_string();
+}
+
+long trimBinaryToDecimal(string binary, int bits)
+{
+    bitset<32> bin(binary);
+
+    bin >> bits;
+
+    return bin.to_ulong();
+}

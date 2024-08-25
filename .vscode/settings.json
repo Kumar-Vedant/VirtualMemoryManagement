@@ -2,6 +2,8 @@
   "files.associations": {
     "vector": "cpp",
     "deque": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "stdexcept": "cpp",
+    "bitset": "cpp"
   }
 }

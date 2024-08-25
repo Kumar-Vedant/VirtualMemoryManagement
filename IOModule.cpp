@@ -11,17 +11,17 @@ class IOModule
         IOModule(int implementation)
         {
             this->implementation = implementation;
+
+            // initialize the memory manager
+            MemoryManager memoryManager();
             
             // read the trace file
             ifstream traceFile("trace.txt");
             string trace;
             while (getline(traceFile, trace))
             {
-                AllocateMemoryToTask(trace, implementation);
+                AllocateMemoryToTask(trace);
             }
-
-            // initialize the memory manager
-            MemoryManager memoryManager();
         }
 
         map<int, int> getTaskMemoryAllocated()
@@ -29,17 +29,12 @@ class IOModule
             return taskMemoryAllocated;
         }
 
-        int getMemoryForPagetable()
-        {
-            // get information from the memory manager and return the total memory required for page tables for the current implementation
-        }
-
         int getFreePhysicalMemory()
         {
             return memoryManager.getFreePhysicalMemory();
         }
     private:
-        void AllocateMemoryToTask(string trace, int implementation)
+        void AllocateMemoryToTask(string trace)
         {
             // split the trace into task ID, Logical address and size
             vector<string> tokens = split(trace, ':');
@@ -47,43 +42,74 @@ class IOModule
             // convert taskID string(T1, T2, etc.) to int(1, 2, etc.)
             int taskID = stoi(tokens[0].substr(1));
 
-            int logicalAddress = stoi(tokens[1]);
-            int size = stoi(tokens[2]);
+            string logicalAddress = tokens[1];
+            long long size = convertMemoryToBytes(tokens[2]);
 
             // check if the task already exists
-            // if it does, call the allocateMemory function
+            // iterate through the tasks vectors to find the task with the given taskID
 
-            taskMemoryAllocated[taskID] += size;
+            // page table as a map
+            for (int i = 0; i < tasksMap.size(); i++)
+            {
+                if (tasksMap[i].getTaskID() == taskID)
+                {
+                    // allocate memory to the task
+                    tasksMap[i].allocateMemory(logicalAddress, size);
+                    taskMemoryAllocated[taskID] += size;
+                    return;
+                }
+            }
+            // single level page table
+            for (int i = 0; i < tasksSingleLevel.size(); i++)
+            {
+                if (tasksSingleLevel[i].getTaskID() == taskID)
+                {
+                    // allocate memory to the task
+                    tasksSingleLevel[i].allocateMemory(logicalAddress, size);
+                    taskMemoryAllocated[taskID] += size;
+                    return;
+                }
+            }
+            // two level page table
+            for (int i = 0; i < tasksTwoLevel.size(); i++)
+            {
+                if (tasksTwoLevel[i].getTaskID() == taskID)
+                {
+                    // allocate memory to the task
+                    tasksTwoLevel[i].allocateMemory(logicalAddress, size);
+                    taskMemoryAllocated[taskID] += size;
+                    return;
+                }
+            }
             
             // else, create a new task object
-
-            // if implementation is 0, create a TaskSingleLevel object
+            // if implementation is 0, create a TaskMap object
             if(implementation == 0)
             {
-                TaskSingleLevel task(taskID, memoryManager);
-                tasksSingleLevel.push_back(task);
+                TaskMap task(taskID, memoryManager);
+                tasksMap.push_back(task);
                 
                 // allocate memory to the task
                 task.allocateMemory(logicalAddress, size);
 
                 taskMemoryAllocated[taskID] = size;
             }
-            // if implementation is 1, create a TaskTwoLevel object
+            // if implementation is 1, create a TaskSingleLevel object
             else if(implementation == 1)
             {
-                TaskTwoLevel task(taskID, memoryManager);
-                tasksTwoLevel.push_back(task);
+                TaskSingleLevel task(taskID, memoryManager);
+                tasksSingleLevel.push_back(task);
 
                 // allocate memory to the task
                 task.allocateMemory(logicalAddress, size);
 
                 taskMemoryAllocated[taskID] = size;
             }
-            // if implementation is 2, create a TaskMap object
+            // if implementation is 2, create a TaskTwoLevel object
             else if(implementation == 2)
             {
-                TaskMap task(taskID, memoryManager);
-                tasksMap.push_back(task);
+                TaskTwoLevel task(taskID, memoryManager);
+                tasksTwoLevel.push_back(task);
 
                 // allocate memory to the task
                 task.allocateMemory(logicalAddress, size);
@@ -104,11 +130,34 @@ class IOModule
             }
             return tokens;
         }
+
+        long long convertMemoryToBytes(const string &memoryStr) 
+        {
+            long long multiplier = 1;
+            string numberPart = memoryStr.substr(0, memoryStr.size() - 2);
+            string unitPart = memoryStr.substr(memoryStr.size() - 2);
+
+            // convert the numeric part to a long long
+            long long number = stoll(numberPart);
+
+            // determine the multiplier based on the unit
+            if (unitPart == "KB")
+            {
+                multiplier = 1024LL;
+            } 
+            else if (unitPart == "MB")
+            {
+                multiplier = 1024LL * 1024;
+            }
+
+            return number * multiplier;
+        }
+
         MemoryManager memoryManager;
         
+        vector<TaskMap> tasksMap;
         vector<TaskSingleLevel> tasksSingleLevel;
         vector<TaskTwoLevel> tasksTwoLevel;
-        vector<TaskMap> tasksMap;
 
         map<int, int> taskMemoryAllocated;
 
