@@ -5,6 +5,8 @@
     "string": "cpp",
     "stdexcept": "cpp",
     "bitset": "cpp",
-    "chrono": "cpp"
+    "chrono": "cpp",
+    "iostream": "cpp",
+    "ostream": "cpp"
   }
 }

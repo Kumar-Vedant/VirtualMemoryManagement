@@ -43,49 +43,66 @@ class PerformanceModule
             // for each implementation, report:
             for (int i = 0; i < 3; i++)
             {
-                switch (i)
+                if(i == 0)
                 {
-                    case 0:
-                        // report execution time
-                        cout << "Execution time for implementation : " << "Map" << ": " << executionTimes[i] << " microseconds" << endl;
-                        // physical memory allocated to each task
-                        // cout << "Physical memory allocated to each task: " <<  ioModuleMap.getTaskMemoryAllocated() << endl;
-
-                        // memory for page table
-                        // cout << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
-                        
-                        // free physical memory
-                        cout << "Free physical memory: " << ioModuleMap.getFreePhysicalMemory() << endl;
-
-                        break;
-                    case 1:
-                        // report execution time
-                        cout << "Execution time for implementation : " << "Single-level" << ": " << executionTimes[i] << " microseconds" << endl;
-
-                        // memory for page table
-                        cout << "Memory for Page Table: " << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
-
-                        // free physical memory
-                        cout << "Free physical memory: " << ioModuleSingleLevel.getFreePhysicalMemory() << endl;
-                        break;
-                    case 2:
-                        // report execution time
-                        cout << "Execution time for implementation ; " << "Two-level" << ": " << executionTimes[i] << " microseconds" << endl;
-
-                        // memory for page table
-                        cout << "Memory for Page Table: " << PAGE_TABLE_SIZE_1 * (PTE_SIZE_1 / 8) + PAGE_TABLE_SIZE_2 * (PTE_SIZE_2 / 8) << "Bytes" << endl;
-
-                        // free physical memory
-                        cout << "Free physical memory: " << ioModuleTwoLevel.getFreePhysicalMemory() << endl;
-                        break;
+                    // report execution time
+                    cout << "Execution time for implementation : " << "Map" << ": " << executionTimes[i] << " microseconds" << endl;
                     
+                    // physical memory allocated to each task
+                    // iterate through the map and print key:value pairs
+                    map<int, int> taskMemory = ioModuleMap.getTaskMemoryAllocated();
+                    cout << "Physical memory allocated to each task: " << endl;
+                    for (const auto& pair : taskMemory)
+                    {
+                        cout << pair.first << ": " << pair.second << endl;
+                    }
+
+                    // memory for page table
+                    // cout << "Memory for Page Table: " << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
+                    
+                    // free physical memory
+                    cout << "Free physical memory: " << ioModuleMap.getFreePhysicalMemory() << " Bytes" << endl;
                 }
+                else if(i == 1)
+                {
+                    // report execution time
+                    cout << "Execution time for implementation : " << "Single-level" << ": " << executionTimes[i] << " microseconds" << endl;
 
-                // 2/3- total memory for page table
+                    // physical memory allocated to each task
+                    // iterate through the map and print key:value pairs
+                    map<int, int> taskMemory = ioModuleSingleLevel.getTaskMemoryAllocated();
+                    cout << "Physical memory allocated to each task: " << endl;
+                    for (const auto& pair : taskMemory)
+                    {
+                        cout << pair.first << ": " << pair.second << endl;
+                    }
 
-                // page table as a map
-                // single level page table
-                // two level page table
+                    // memory for page table
+                    cout << "Memory for Page Table: " << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
+
+                    // free physical memory
+                    cout << "Free physical memory: " << ioModuleSingleLevel.getFreePhysicalMemory() << " Bytes" << endl;
+                }
+                else
+                {
+                    // report execution time
+                    cout << "Execution time for implementation ; " << "Two-level" << ": " << executionTimes[i] << " microseconds" << endl;
+                    
+                    // physical memory allocated to each task
+                    // iterate through the map and print key:value pairs
+                    map<int, int> taskMemory = ioModuleTwoLevel.getTaskMemoryAllocated();
+                    cout << "Physical memory allocated to each task: " << endl;
+                    for (const auto& pair : taskMemory)
+                    {
+                        cout << pair.first << ": " << pair.second << endl;
+                    }
+
+                    // memory for page table
+                    cout << "Memory for Page Table: " << PAGE_TABLE_SIZE_1 * (PTE_SIZE_1 / 8) + PAGE_TABLE_SIZE_2 * (PTE_SIZE_2 / 8) << "Bytes" << endl;
+
+                    // free physical memory
+                    cout << "Free physical memory: " << ioModuleTwoLevel.getFreePhysicalMemory() << " Bytes" << endl;
+                }
             }
         }
 

@@ -28,6 +28,11 @@ class TaskMap
             // store the physical address returned by the memory manager
             for (int i = 0; i < physicalPages.size(); i++)
             {
+                // if the page number is already allocated, report page table hit
+                if (pageTable.count(startingPageNumber + i) != 0)
+                {
+                    cout << "Page table hit" << endl;
+                }
                 pageTable[startingPageNumber + i] = physicalPages[i];
             }
         }

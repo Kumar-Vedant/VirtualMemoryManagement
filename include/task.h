@@ -4,20 +4,20 @@ class TaskMap
 {
     public:
         TaskMap(int taskID, MemoryManager memoryManager);
-        void allocateMemory(string logicalAddress, int size);
+        void allocateMemory(string logicalAddress, long long size);
         int getTaskID();
 };
 class TaskSingleLevel
 {
     public:
         TaskSingleLevel(int taskID, MemoryManager memoryManager);
-        void allocateMemory(string logicalAddress, int size);
+        void allocateMemory(string logicalAddress, long long size);
         int getTaskID();
 };
 class TaskTwoLevel
 {
     public:
         TaskTwoLevel(int taskID, MemoryManager memoryManager);
-        void allocateMemory(string logicalAddress, int size);
+        void allocateMemory(string logicalAddress, long long size);
         int getTaskID();
 };

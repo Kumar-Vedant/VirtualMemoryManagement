@@ -7,10 +7,6 @@ using namespace std;
 class MemoryManager
 {
     public:
-        MemoryManager()
-        {
-            // convert the memory size from config.h to bytes
-        }
         // gives a physical page address 
         vector<int> allocatePages(long long size)
         {
