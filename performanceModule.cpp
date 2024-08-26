@@ -1,111 +1,103 @@
-#include <bits/stdc++.h>
-#include <chrono>
+    #include <bits/stdc++.h>
+    #include <chrono>
 
-#include "include/IOModule.h"
-#include "include/config.h"
+    #include "include/IOModule.hpp"
+    #include "include/performanceModule.hpp"
+    #include "include/config.h"
 
-using namespace std;
-using namespace std::chrono;
+    using namespace std;
+    using namespace std::chrono;
 
-class PerformanceModule
-{
-    public:
-        PerformanceModule()
-        {
-            // create 3 implementations of IOModule
-            // measure the execution time of each implementation
-            
-            // map page table
-            auto start = high_resolution_clock::now();
-            IOModule ioModuleMap(0);
-            auto stop = high_resolution_clock::now();
+    PerformanceModule::PerformanceModule() 
+    {
+        cout << "Performance Module" << endl;
 
-            auto duration = duration_cast<microseconds>(stop - start);
-            executionTimes[0] = duration.count();
-            
-            // single level page table
-            auto start = high_resolution_clock::now();
-            IOModule ioModuleSingleLevel(1);
-            auto stop = high_resolution_clock::now();
+        // Measure execution time for different implementations
+        auto start = high_resolution_clock::now();
+        IOModule ioModuleMap(0);
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        executionTimes[0] = duration.count();
 
-            auto duration = duration_cast<microseconds>(stop - start);
-            executionTimes[1] = duration.count();
-            
-            // single level page table
-            auto start = high_resolution_clock::now();
-            IOModule ioModuleTwoLevel(2);
-            auto stop = high_resolution_clock::now();
+        start = high_resolution_clock::now();
+        IOModule ioModuleSingleLevel(1);
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        executionTimes[1] = duration.count();
 
-            auto duration = duration_cast<microseconds>(stop - start);
-            executionTimes[2] = duration.count();
-            
+        start = high_resolution_clock::now();
+        IOModule ioModuleTwoLevel(2);
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        executionTimes[2] = duration.count();
 
-            // for each implementation, report:
-            for (int i = 0; i < 3; i++)
-            {
-                if(i == 0)
-                {
-                    // report execution time
-                    cout << "Execution time for implementation : " << "Map" << ": " << executionTimes[i] << " microseconds" << endl;
-                    
-                    // physical memory allocated to each task
-                    // iterate through the map and print key:value pairs
-                    map<int, int> taskMemory = ioModuleMap.getTaskMemoryAllocated();
-                    cout << "Physical memory allocated to each task: " << endl;
-                    for (const auto& pair : taskMemory)
-                    {
-                        cout << pair.first << ": " << pair.second << endl;
-                    }
-
-                    // memory for page table
-                    // cout << "Memory for Page Table: " << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
-                    
-                    // free physical memory
-                    cout << "Free physical memory: " << ioModuleMap.getFreePhysicalMemory() << " Bytes" << endl;
+        // Report execution times and other details
+        for (int i = 0; i < 3; i++) {
+            if (i == 0) {
+                cout << "Execution time for implementation : Map: " << executionTimes[i] << " microseconds" << endl;
+                map<int, int> taskMemory = ioModuleMap.getTaskMemoryAllocated();
+                cout << "Physical memory allocated to each task: " << endl;
+                for (const auto& pair : taskMemory) {
+                    cout << pair.first << ": " << pair.second << endl;
                 }
-                else if(i == 1)
-                {
-                    // report execution time
-                    cout << "Execution time for implementation : " << "Single-level" << ": " << executionTimes[i] << " microseconds" << endl;
 
-                    // physical memory allocated to each task
-                    // iterate through the map and print key:value pairs
-                    map<int, int> taskMemory = ioModuleSingleLevel.getTaskMemoryAllocated();
-                    cout << "Physical memory allocated to each task: " << endl;
-                    for (const auto& pair : taskMemory)
-                    {
-                        cout << pair.first << ": " << pair.second << endl;
-                    }
-
-                    // memory for page table
-                    cout << "Memory for Page Table: " << VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << "Bytes" << endl;
-
-                    // free physical memory
-                    cout << "Free physical memory: " << ioModuleSingleLevel.getFreePhysicalMemory() << " Bytes" << endl;
+                map<int, int> taskPageHits = ioModuleMap.getTaskPageHits();
+                cout << "Page hits for each task: " << endl;
+                for (const auto& pair : taskPageHits) {
+                    cout << pair.first << ": " << pair.second << endl;
                 }
-                else
-                {
-                    // report execution time
-                    cout << "Execution time for implementation ; " << "Two-level" << ": " << executionTimes[i] << " microseconds" << endl;
-                    
-                    // physical memory allocated to each task
-                    // iterate through the map and print key:value pairs
-                    map<int, int> taskMemory = ioModuleTwoLevel.getTaskMemoryAllocated();
-                    cout << "Physical memory allocated to each task: " << endl;
-                    for (const auto& pair : taskMemory)
-                    {
-                        cout << pair.first << ": " << pair.second << endl;
-                    }
 
-                    // memory for page table
-                    cout << "Memory for Page Table: " << PAGE_TABLE_SIZE_1 * (PTE_SIZE_1 / 8) + PAGE_TABLE_SIZE_2 * (PTE_SIZE_2 / 8) << "Bytes" << endl;
-
-                    // free physical memory
-                    cout << "Free physical memory: " << ioModuleTwoLevel.getFreePhysicalMemory() << " Bytes" << endl;
+                map<int, int> taskPageMisses = ioModuleMap.getTaskPageMisses();
+                cout << "Page misses for each task: " << endl;
+                for (const auto& pair : taskPageMisses) {
+                    cout << pair.first << ": " << pair.second << endl;
                 }
+                cout << "Memory for Page Table: " <<  2 * VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << " Bytes" << endl;
+                cout << "Free physical memory: " << ioModuleMap.getFreePhysicalMemory() << " Bytes" << endl;
+            } else if (i == 1) {
+                cout << "Execution time for implementation : Single-level: " << executionTimes[i] << " microseconds" << endl;
+                map<int, int> taskMemory = ioModuleSingleLevel.getTaskMemoryAllocated();
+                cout << "Physical memory allocated to each task: " << endl;
+                for (const auto& pair : taskMemory) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+                
+                map<int, int> taskPageHits = ioModuleSingleLevel.getTaskPageHits();
+                cout << "Page hits for each task: " << endl;
+                for (const auto& pair : taskPageHits) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+
+                map<int, int> taskPageMisses = ioModuleSingleLevel.getTaskPageMisses();
+                cout << "Page misses for each task: " << endl;
+                for (const auto& pair : taskPageMisses) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+
+                cout << "Memory for Page Table: " <<  VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << " Bytes" << endl;
+                cout << "Free physical memory: " << ioModuleSingleLevel.getFreePhysicalMemory() << " Bytes" << endl;
+            } else {
+                cout << "Execution time for implementation : Two-level: " << executionTimes[i] << " microseconds" << endl;
+                map<int, int> taskMemory = ioModuleTwoLevel.getTaskMemoryAllocated();
+                cout << "Physical memory allocated to each task: " << endl;
+                for (const auto& pair : taskMemory) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+
+                map<int, int> taskPageHits = ioModuleTwoLevel.getTaskPageHits();
+                cout << "Page hits for each task: " << endl;
+                for (const auto& pair : taskPageHits) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+
+                map<int, int> taskPageMisses = ioModuleTwoLevel.getTaskPageMisses();
+                cout << "Page misses for each task: " << endl;
+                for (const auto& pair : taskPageMisses) {
+                    cout << pair.first << ": " << pair.second << endl;
+                }
+
+                cout << "Memory for Page Table: " << PAGE_TABLE_SIZE_1 * (PTE_SIZE_1 / 8) + PAGE_TABLE_SIZE_2 * (PTE_SIZE_2 / 8) << " Bytes" << endl;
+                cout << "Free physical memory: " << ioModuleTwoLevel.getFreePhysicalMemory() << " Bytes" << endl;
             }
         }
-
-    private:
-        float executionTimes[3];
-};
+    }

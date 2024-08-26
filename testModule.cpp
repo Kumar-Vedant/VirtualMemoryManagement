@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <bits/stdc++.h>
 
-#include "include/IOModule.h"
-#include "include/performanceModule.h"
+#include "include/performanceModule.hpp"
 #include "include/config.h"
 
 using namespace std;
@@ -20,8 +20,9 @@ int main()
     // generate trace file with the format taskID:logicalAddress:size
     generateTraceFile(numberOfTasks);
 
+    cout << "Trace file generated successfully!" << endl;
     // initialize the performance module
-    PerformanceModule performanceModule();
+    PerformanceModule performanceModule;
 
     return 0;
 }
@@ -64,7 +65,7 @@ void generateTraceFile(int numberOfTasks)
         int minPageSize = PAGE_SIZE / (1LL<<10);
         int size = (rand() % 10 + 1) * minPageSize;
         
-        traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << endl;
+        traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << "KB" << endl;
     }
     traceFile.close();
 }

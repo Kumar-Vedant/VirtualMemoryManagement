@@ -4,60 +4,54 @@
 
 using namespace std;
 
-class MemoryManager
+#include "include/memoryManager.hpp"
+
+MemoryManager::MemoryManager()
 {
-    public:
-        // gives a physical page address 
-        vector<int> allocatePages(long long size)
-        {
-            vector<int> physicalPagesAllocated;
+    cout << "Memory Manager initialized" << endl;
+    cout << PHYSICAL_PAGES << endl;
+    physicalPages = new int[PHYSICAL_PAGES];
+}
 
-            // calculate no. of pages required using size
-            int numberOfPages = size / PAGE_SIZE;
+vector<int> MemoryManager::allocatePages(long long size)
+{   
+    vector<int> physicalPagesAllocated;
 
-            // iterate through the physicalPages array to find the first element whose value is 0
-            for (int i = 0; i < sizeof(physicalPages) / sizeof(int); i++)
-            {
-                // allocate the first available page
-                if (physicalPages[i] == 0)
-                {
-                    // set the page allocated to 1
-                    physicalPages[i] = 1;
-                    // store the index of the page allocated
-                    physicalPagesAllocated.push_back(i);
-                }
+    // Calculate number of pages required using size
+    int numberOfPages = size / PAGE_SIZE;
 
-                
-                // if all required pages are allocated, break
-                if (physicalPagesAllocated.size() == numberOfPages)
-                {
-                    break;
-                }
-            }
-            // if no page is available, return error
-            if (physicalPagesAllocated.size() < numberOfPages)
-            {
-                cout << "Error: Not enough memory available" << endl;
-            }
-            
-            // return the indexes of the physical pages allocated
-            return physicalPagesAllocated;
+    // Iterate through the physicalPages array to find the first element whose value is 0
+    for (int i = 0; i < PHYSICAL_PAGES; i++) {
+        // Allocate the first available page
+        if (physicalPages[i] == 0) {
+            // Set the page allocated to 1
+            physicalPages[i] = 1;
+            // Store the index of the page allocated
+            physicalPagesAllocated.push_back(i);
         }
 
-        int getFreePhysicalMemory()
-        {
-            int freeMemory = 0;
-            for (int i = 0; i < sizeof(physicalPages) / sizeof(int); i++)
-            {
-                if (physicalPages[i] == 0)
-                {
-                    freeMemory += PAGE_SIZE;
-                }
-            }
-            return freeMemory;
+        // If all required pages are allocated, break
+        if (physicalPagesAllocated.size() == numberOfPages) {
+            break;
         }
+    }
 
-    private:
-        // initialize all elements in the physical page table to 0(unallocated)
-        int physicalPages[PHYSICAL_PAGES] = {0};
-};
+    // If no page is available, return error
+    if (physicalPagesAllocated.size() < numberOfPages) {
+        cout << "Error: Not enough memory available" << endl;
+    }
+
+    // Return the indexes of the physical pages allocated
+    return physicalPagesAllocated;
+}
+
+long long MemoryManager::getFreePhysicalMemory()
+{
+    long long freeMemory = 0;
+    for (int i = 0; i < PHYSICAL_PAGES; i++) {
+        if (physicalPages[i] == 0) {
+            freeMemory += PAGE_SIZE;
+        }
+    }
+    return freeMemory;
+}

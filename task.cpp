@@ -2,153 +2,165 @@
 #include <sstream>
 #include <bitset>
 
-#include "include/memoryManager.h"
+#include "include/memoryManager.hpp"
 #include "include/config.h"
 
 using namespace std;
 
-class TaskMap
+string hexToBin(const string& s);
+long trimBinaryToDecimal(string binary, int bits);
+
+#include "include/task.hpp"
+
+// TaskMap class implementation
+TaskMap::TaskMap(int taskID, MemoryManager memoryManager)
 {
-    public:
-        TaskMap(int taskID, MemoryManager memoryManager)
-        {
-            this->taskID = taskID;
-            this->memoryManager = memoryManager;
-        }
-        void allocateMemory(string logicalAddress, long long size)
-        {
-            // call the memory manager's allocatePages function for the required size
-            vector<int> physicalPages = memoryManager.allocatePages(size);
-            
-            // calculate the logical address of the first page required
-            string binaryAddress = hexToBin(logicalAddress);
-            // remove the offset bits from the logical address
-            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
+    pageTableHits = 0;
+    this->taskID = taskID;
+    this->memoryManager = memoryManager;
+}
 
-            // store the physical address returned by the memory manager
-            for (int i = 0; i < physicalPages.size(); i++)
-            {
-                // if the page number is already allocated, report page table hit
-                if (pageTable.count(startingPageNumber + i) != 0)
-                {
-                    cout << "Page table hit" << endl;
-                }
-                pageTable[startingPageNumber + i] = physicalPages[i];
-            }
-        }
-        int getTaskID()
-        {
-            return taskID;
-        }
-
-    private:
-        int taskID;
-        MemoryManager memoryManager;
-
-        // make a map for page tables
-        map<int, int> pageTable;
-};
-
-class TaskSingleLevel
+int TaskMap::getPageTableHits()
 {
-    public:
-        TaskSingleLevel(int taskID, MemoryManager memoryManager)
-        {
-            this->taskID = taskID;
-            this->memoryManager = memoryManager;
-        }
-        void allocateMemory(string logicalAddress, long long size)
-        {
-            // call the memory manager's allocatePages function for the required size
-            vector<int> physicalPages = memoryManager.allocatePages(size);
-            
-            // calculate the page number of the first page required from the logical address
-
-            string binaryAddress = hexToBin(logicalAddress);
-            // remove the offset bits from the logical address
-            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
-
-            // store the physical address returned by the memory manager
-            for (int i = 0; i < physicalPages.size(); i++)
-            {
-                // if the page number is greater than the number of virtual pages, report page table miss
-                if (startingPageNumber + i >= VIRTUAL_PAGES)
-                {
-                    cout << "Page table miss" << endl;
-                }
-                // if the page is already allocated, report page table hit
-                if (pageTable[startingPageNumber + i] != 0)
-                {
-                    cout << "Page table hit" << endl;
-                }
-                pageTable[startingPageNumber + i] = physicalPages[i];
-            }
-        }
-        int getTaskID()
-        {
-            return taskID;
-        }
-    private:
-        int taskID;
-        MemoryManager memoryManager;
-        int pageTable[VIRTUAL_PAGES];
-
-};
-class TaskTwoLevel
+    return pageTableHits;
+}
+int TaskMap::getPageTableMisses()
 {
-    public:
-        TaskTwoLevel(int taskID, MemoryManager memoryManager)
+    return pageTableMisses;
+}
+
+void TaskMap::allocateMemory(string logicalAddress, long long size)
+{
+    vector<int> physicalPages = memoryManager.allocatePages(size);
+
+    string binaryAddress = hexToBin(logicalAddress);
+    long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
+
+    for (int i = 0; i < physicalPages.size(); i++) {
+        if (pageTable.count(startingPageNumber + i) != 0)
         {
-            this->taskID = taskID;
-            this->memoryManager = memoryManager;
+            pageTableHits++;
         }
-        void allocateMemory(string logicalAddress, long long size)
+        else
         {
-            // call the memory manager's allocatePages function for the required size
-            vector<int> physicalPages = memoryManager.allocatePages(size);
-
-            // convert the logical address to binary
-            string binaryAddress = hexToBin(logicalAddress);
-            // remove the offset bits from the logical address
-            long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
-            
-            // calculate the page number of the first page required in the 1st level page table from the logical address
-            long startingPageNumber1 = trimBinaryToDecimal(to_string(startingPageNumber), PTS_1);
-
-            // calculate the page number of the first page required in the 2nd level page table from the logical address
-            long startingPageNumber2 = trimBinaryToDecimal(to_string(startingPageNumber).substr(PTS_2), 0);
-
-            // store the physical address returned by the memory manager
-            for (int i = 0; i < physicalPages.size(); i++)
-            {
-                // if the page number is greater than the number of virtual pages, report page table miss
-                if (startingPageNumber1 >= PAGE_TABLE_SIZE_1 || startingPageNumber2 + i >= PAGE_TABLE_SIZE_2)
-                {
-                    cout << "Page table miss" << endl;
-                }
-                // if the page is already allocated, report page table hit
-                if (pageTable[startingPageNumber1][startingPageNumber2 + i] != 0)
-                {
-                    cout << "Page table hit" << endl;
-                }
-
-                // store the physical page number in the correct matrix element
-                pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
-            }
+            pageTable[startingPageNumber + i] = physicalPages[i];
         }
-        int getTaskID()
+    }
+}
+
+int TaskMap::getTaskID() 
+{
+    return taskID;
+}
+
+TaskSingleLevel::TaskSingleLevel(int taskID, MemoryManager memoryManager)
+{
+    pageTableHits = 0;
+    this->taskID = taskID;
+    this->memoryManager = memoryManager;
+
+    for (int i = 0; i < VIRTUAL_PAGES; i++) {
+        pageTable[i] = 0;
+    }
+}
+
+int TaskSingleLevel::getPageTableHits()
+{
+    return pageTableHits;
+}
+
+int TaskSingleLevel::getPageTableMisses()
+{
+    return pageTableMisses;
+}
+void TaskSingleLevel::allocateMemory(string logicalAddress, long long size)
+{
+    vector<int> physicalPages = memoryManager.allocatePages(size);
+
+    string binaryAddress = hexToBin(logicalAddress);
+    long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
+
+    // store the physical page number in the page table
+    for (int i = 0; i < physicalPages.size(); i++)
+    {
+        // if the virtual page number requested is out of bounds
+        if (startingPageNumber + i >= VIRTUAL_PAGES)
         {
-            return taskID;
+            cout << "Page table miss" << endl;
+            break;
+        }
+        if (pageTable[startingPageNumber + i] != 0)
+        {
+            pageTableHits++;
+            break;
+        }
+        pageTable[startingPageNumber + i] = physicalPages[i];
+    }
+}
+
+int TaskSingleLevel::getTaskID()
+{
+    return taskID;
+}
+
+// TaskTwoLevel class implementation
+
+TaskTwoLevel::TaskTwoLevel(int taskID, MemoryManager memoryManager)
+{
+    pageTableHits = 0;
+    this->taskID = taskID;
+    this->memoryManager = memoryManager;
+
+    for (int i = 0; i < PAGE_TABLE_SIZE_1; i++) {
+        for (int j = 0; j < PAGE_TABLE_SIZE_2; j++) {
+            pageTable[i][j] = 0;
+        }
+    }
+}
+
+int TaskTwoLevel::getPageTableHits()
+{
+    return pageTableHits;
+}
+
+int TaskTwoLevel::getPageTableMisses()
+{
+    return pageTableMisses;
+}
+void TaskTwoLevel::allocateMemory(string logicalAddress, long long size) {
+    vector<int> physicalPages = memoryManager.allocatePages(size);
+
+    string binaryAddress = hexToBin(logicalAddress);
+    binaryAddress = binaryAddress.substr(0, binaryAddress.size() - BITS_PAGE_SIZE);
+    // long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
+
+    string s1 = binaryAddress.substr(0, PTS_1);
+    string s2 = binaryAddress.substr(PTS_2);
+    
+    long startingPageNumber1 = trimBinaryToDecimal(s1, 0);
+    long startingPageNumber2 = trimBinaryToDecimal(s2, 0);
+
+    for (int i = 0; i < physicalPages.size(); i++)
+    {
+        if (startingPageNumber1 >= PAGE_TABLE_SIZE_1 || startingPageNumber2 + i >= PAGE_TABLE_SIZE_2)
+        {
+            cout << "Page table miss" << endl;
+            break;
+        }
+        if (pageTable[startingPageNumber1][startingPageNumber2 + i] != 0)
+        {
+            pageTableHits++;
+            break;
         }
 
-    private:
-        int taskID;
-        MemoryManager memoryManager;
+        pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
+    }
+}
 
-        // make a matrix for page tables
-        int pageTable[PAGE_TABLE_SIZE_1][PAGE_TABLE_SIZE_2];
-
-};
+int TaskTwoLevel::getTaskID()
+{
+    return taskID;
+}
 
 string hexToBin(const string& s) 
 {
@@ -166,7 +178,7 @@ long trimBinaryToDecimal(string binary, int bits)
 {
     bitset<32> bin(binary);
 
-    bin >> bits;
+    bin >>= bits;
 
     return bin.to_ulong();
 }
