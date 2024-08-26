@@ -36,11 +36,4 @@ const size_t Heap = 0x50000000;
 const size_t Shared = 0x40000000;
 const size_t Stack = 0xbfffb000;
 
-const size_t rangeText = Data - Text;
-const size_t rangeData = Bss - Data;
-const size_t rangeBss = Heap - Bss;
-const size_t rangeHeap = Shared - Heap;
-const size_t rangeShared = Stack - Shared;
-const size_t rangeStack = 0xffffffff - Stack;
-
 #endif
