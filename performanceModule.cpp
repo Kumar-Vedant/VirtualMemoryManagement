@@ -10,8 +10,6 @@
 
     PerformanceModule::PerformanceModule() 
     {
-        cout << "Performance Module" << endl;
-
         // Measure execution time for different implementations
         auto start = high_resolution_clock::now();
         IOModule ioModuleMap(0);

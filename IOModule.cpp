@@ -8,7 +8,6 @@ using namespace std;
 
 IOModule::IOModule(int implementation)
 {
-    cout << "IOModule" << endl;
     this->implementation = implementation;
 
     // initialize the memory manager

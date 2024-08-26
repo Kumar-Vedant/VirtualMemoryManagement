@@ -40,11 +40,9 @@ void TaskMap::allocateMemory(string logicalAddress, long long size)
         if (pageTable.count(startingPageNumber + i) != 0)
         {
             pageTableHits++;
+            break;
         }
-        else
-        {
-            pageTable[startingPageNumber + i] = physicalPages[i];
-        }
+        pageTable[startingPageNumber + i] = physicalPages[i];
     }
 }
 
@@ -56,6 +54,8 @@ int TaskMap::getTaskID()
 TaskSingleLevel::TaskSingleLevel(int taskID, MemoryManager memoryManager)
 {
     pageTableHits = 0;
+    pageTable = new int[VIRTUAL_PAGES];  // Page table for the task
+
     this->taskID = taskID;
     this->memoryManager = memoryManager;
 

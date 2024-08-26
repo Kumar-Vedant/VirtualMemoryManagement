@@ -41,7 +41,7 @@ private:
     int taskID;  // Task ID
     MemoryManager memoryManager;  // Memory Manager object
 
-    int pageTable[VIRTUAL_PAGES];  // Page table for the task
+    int* pageTable;  // Page table for the task
     int pageTableHits;
     int pageTableMisses;
 

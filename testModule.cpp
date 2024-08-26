@@ -18,7 +18,7 @@ int main()
     int numberOfTasks = getNumberOfTasks();
     
     // generate trace file with the format taskID:logicalAddress:size
-    generateTraceFile(numberOfTasks);
+    // generateTraceFile(numberOfTasks);
 
     cout << "Trace file generated successfully!" << endl;
     // initialize the performance module

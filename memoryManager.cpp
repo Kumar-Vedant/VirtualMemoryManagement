@@ -8,8 +8,6 @@ using namespace std;
 
 MemoryManager::MemoryManager()
 {
-    cout << "Memory Manager initialized" << endl;
-    cout << PHYSICAL_PAGES << endl;
     physicalPages = new int[PHYSICAL_PAGES];
 }
 
