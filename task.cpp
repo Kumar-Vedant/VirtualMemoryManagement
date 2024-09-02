@@ -31,18 +31,34 @@ int TaskMap::getPageTableMisses()
 
 void TaskMap::allocateMemory(string logicalAddress, long long size)
 {
-    vector<int> physicalPages = memoryManager.allocatePages(size);
+    int numberOfPages = size / PAGE_SIZE;
+    int hits = 0;
 
     string binaryAddress = hexToBin(logicalAddress);
     long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
-
-    for (int i = 0; i < physicalPages.size(); i++) {
-        if (pageTable.count(startingPageNumber + i) != 0)
+    
+    // check if the page table has the physical page number for the virtual page number
+    for (int i = 0; i < numberOfPages; i++)
+    {
+        // if the page is already in the page table, count as a page table hit
+        if (pageTable.count(startingPageNumber + i) == 1)
         {
-            pageTableHits++;
-            break;
+            hits++;
         }
-        pageTable[startingPageNumber + i] = physicalPages[i];
+    }
+    pageTableHits += hits;
+    // add the rest of the pages to page table misses
+    pageTableMisses += numberOfPages - hits;
+
+    vector<int> physicalPages = memoryManager.allocatePages(numberOfPages - hits);
+
+    for (int i = 0; i < numberOfPages; i++)
+    {
+        if (pageTable.count(startingPageNumber + i) == 0)
+        {
+            pageTable[startingPageNumber + i] = physicalPages[0];
+            physicalPages.erase(physicalPages.begin());
+        }
     }
 }
 
@@ -75,26 +91,38 @@ int TaskSingleLevel::getPageTableMisses()
 }
 void TaskSingleLevel::allocateMemory(string logicalAddress, long long size)
 {
-    vector<int> physicalPages = memoryManager.allocatePages(size);
+    int numberOfPages = size / PAGE_SIZE;
+    int hits = 0;
 
     string binaryAddress = hexToBin(logicalAddress);
     long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
-
-    // store the physical page number in the page table
-    for (int i = 0; i < physicalPages.size(); i++)
+    
+    // check if the page table has the physical page number for the virtual page number
+    for (int i = 0; i < numberOfPages; i++)
     {
-        // if the virtual page number requested is out of bounds
-        if (startingPageNumber + i >= VIRTUAL_PAGES)
-        {
-            cout << "Page table miss" << endl;
-            break;
-        }
+        // if the page is already in the page table, count as a page table hit
         if (pageTable[startingPageNumber + i] != 0)
         {
-            pageTableHits++;
-            break;
+            hits++;
         }
-        pageTable[startingPageNumber + i] = physicalPages[i];
+    }
+    pageTableHits += hits;
+    // add the rest of the pages to page table misses
+    pageTableMisses += numberOfPages - hits;
+
+    // call memory manager to allocate pages equal to page misses this time
+    vector<int> physicalPages = memoryManager.allocatePages(numberOfPages - hits);
+
+    // store the physical page number in the page table
+    for (int i = 0; i < numberOfPages; i++)
+    {
+        // store the physical page number in the page table of only the pages that were not already in the page table
+        if (pageTable[startingPageNumber + i] == 0)
+        {
+            // allocate the first physical page number to the virtual page number and remove it from the list of physical pages
+            pageTable[startingPageNumber + i] = physicalPages[0];
+            physicalPages.erase(physicalPages.begin());
+        }
     }
 }
 
@@ -104,7 +132,6 @@ int TaskSingleLevel::getTaskID()
 }
 
 // TaskTwoLevel class implementation
-
 TaskTwoLevel::TaskTwoLevel(int taskID, MemoryManager memoryManager)
 {
     pageTableHits = 0;
@@ -127,12 +154,14 @@ int TaskTwoLevel::getPageTableMisses()
 {
     return pageTableMisses;
 }
-void TaskTwoLevel::allocateMemory(string logicalAddress, long long size) {
-    vector<int> physicalPages = memoryManager.allocatePages(size);
+void TaskTwoLevel::allocateMemory(string logicalAddress, long long size)
+{
+    int numberOfPages = size / PAGE_SIZE;
+    int hits = 0;
 
+    // convert the logical address to the virtual page numbers of the two levels
     string binaryAddress = hexToBin(logicalAddress);
     binaryAddress = binaryAddress.substr(0, binaryAddress.size() - BITS_PAGE_SIZE);
-    // long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
 
     string s1 = binaryAddress.substr(0, PTS_1);
     string s2 = binaryAddress.substr(PTS_2);
@@ -140,20 +169,30 @@ void TaskTwoLevel::allocateMemory(string logicalAddress, long long size) {
     long startingPageNumber1 = trimBinaryToDecimal(s1, 0);
     long startingPageNumber2 = trimBinaryToDecimal(s2, 0);
 
-    for (int i = 0; i < physicalPages.size(); i++)
+    // check if the page table has the physical page number for the virtual page number
+    for (int i = 0; i < numberOfPages; i++)
     {
-        if (startingPageNumber1 >= PAGE_TABLE_SIZE_1 || startingPageNumber2 + i >= PAGE_TABLE_SIZE_2)
-        {
-            cout << "Page table miss" << endl;
-            break;
-        }
+        // if the page is already in the page table, count as a page table hit
         if (pageTable[startingPageNumber1][startingPageNumber2 + i] != 0)
         {
-            pageTableHits++;
-            break;
+            hits++;
         }
+    }
 
-        pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[i];
+    pageTableHits += hits;
+    // add the rest of the pages to page table misses
+    pageTableMisses += numberOfPages - hits;
+
+    // call memory manager to allocate pages equal to page misses this time
+    vector<int> physicalPages = memoryManager.allocatePages(numberOfPages - hits);
+
+    for (int i = 0; i < numberOfPages; i++)
+    {
+        if (pageTable[startingPageNumber1][startingPageNumber2 + i] == 0)
+        {
+            pageTable[startingPageNumber1][startingPageNumber2 + i] = physicalPages[0];
+            physicalPages.erase(physicalPages.begin());
+        }
     }
 }
 

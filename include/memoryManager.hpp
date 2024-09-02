@@ -11,7 +11,7 @@ class MemoryManager {
 public:
     MemoryManager();  // Constructor declaration
 
-    vector<int> allocatePages(long long size);  // Allocate pages and return their indexes
+    vector<int> allocatePages(int numberOfPages);  // Allocate pages and return their indexes
     long long getFreePhysicalMemory();  // Get the amount of free physical memory
 
 private:

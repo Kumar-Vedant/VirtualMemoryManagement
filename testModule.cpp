@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 
-// #include "include/performanceModule.hpp"
+#include "include/performanceModule.hpp"
 #include "include/config.h"
 
 using namespace std;
@@ -28,10 +28,10 @@ int main()
     
     // generate trace file with the format taskID:logicalAddress:size
     // generateTraceFile(numberOfTasks);
-    genTraceFile(numberOfTasks);
+    // genTraceFile(numberOfTasks);
     cout << "Trace file generated successfully!" << endl;
     // initialize the performance module
-    // PerformanceModule performanceModule;
+    PerformanceModule performanceModule;
 
     return 0;
 }
@@ -46,7 +46,7 @@ int getNumberOfTasks()
 
 void *generateTraceFile(void *arg)
 {
-    int taskID = (int)arg;
+    int taskID = (int)((size_t)arg);
     for(int i=0;i<2000;i++){
         int minPageSize = PAGE_SIZE / (1LL<<10);
         // random size from 1 to 10 times minPageSize

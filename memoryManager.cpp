@@ -11,12 +11,12 @@ MemoryManager::MemoryManager()
     physicalPages = new int[PHYSICAL_PAGES];
 }
 
-vector<int> MemoryManager::allocatePages(long long size)
+vector<int> MemoryManager::allocatePages(int numberOfPages)
 {   
     vector<int> physicalPagesAllocated;
 
     // Calculate number of pages required using size
-    int numberOfPages = size / PAGE_SIZE;
+    // int numberOfPages = size / PAGE_SIZE;
 
     // Iterate through the physicalPages array to find the first element whose value is 0
     for (int i = 0; i < PHYSICAL_PAGES; i++) {
@@ -25,7 +25,7 @@ vector<int> MemoryManager::allocatePages(long long size)
             // Set the page allocated to 1
             physicalPages[i] = 1;
             // Store the index of the page allocated
-            physicalPagesAllocated.push_back(i);
+            physicalPagesAllocated.push_back(i+1);
         }
 
         // If all required pages are allocated, break
