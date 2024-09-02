@@ -2,16 +2,25 @@
 #include <fstream>
 #include <cstdlib>
 #include <bits/stdc++.h>
+// i want to use pthreads
+#include <pthread.h>
+#include <unistd.h>
 
-#include "include/performanceModule.hpp"
+
+// #include "include/performanceModule.hpp"
 #include "include/config.h"
 
 using namespace std;
 
 int getNumberOfTasks();
-void generateTraceFile(int numberOfTasks);
+void *generateTraceFile(void *arg);
+void genTraceFile(int numberOfTasks);
 string intToBin(long long n);
 string binToHex(string binary);
+
+pthread_mutex_t fileMutex;
+ofstream traceFile;
+
 
 int main()
 {
@@ -19,10 +28,10 @@ int main()
     
     // generate trace file with the format taskID:logicalAddress:size
     // generateTraceFile(numberOfTasks);
-
+    genTraceFile(numberOfTasks);
     cout << "Trace file generated successfully!" << endl;
     // initialize the performance module
-    PerformanceModule performanceModule;
+    // PerformanceModule performanceModule;
 
     return 0;
 }
@@ -35,21 +44,20 @@ int getNumberOfTasks()
     return numberOfTasks;
 }
 
-void generateTraceFile(int numberOfTasks)
+void *generateTraceFile(void *arg)
 {
-    ofstream traceFile;
-    traceFile.open("trace.txt");
-    for (int i = 0; i < 1000000; i++)
-    {
-        // generate random taskID from 1 to numberOfTasks
-        int taskID = rand() % numberOfTasks + 1;
-        
+    int taskID = (int)arg;
+    for(int i=0;i<2000;i++){
+        int minPageSize = PAGE_SIZE / (1LL<<10);
+        // random size from 1 to 10 times minPageSize
+        int size = (rand() % 10 + 1) * minPageSize;
         // generate random logical address from 0 to VIRTUAL_PAGES
-        long long logicalAddress = rand() % VIRTUAL_PAGES;
-
+        long long logicalAddress = rand() % (BLOCK_PAGES-size/minPageSize);
+        // cout<<logicalAddress<<endl;
         // convert to binary
         string logicalAddressBinary = intToBin(logicalAddress);
-
+        logicalAddressBinary = logicalAddressBinary.substr(BITS_PAGE_SIZE,32-BITS_PAGE_SIZE);
+        // cout<<logicalAddressBinary<<endl;
         // add random bits for offset
         for (int i = 0; i < BITS_PAGE_SIZE; i++)
         {
@@ -57,19 +65,85 @@ void generateTraceFile(int numberOfTasks)
             int randomNumber = rand() % 2;
             logicalAddressBinary = logicalAddressBinary + to_string(randomNumber);
         }
-        
+        // cout<<logicalAddressBinary<<endl;
         // convert to hexadecimal
         string logicalAddressHex = binToHex(logicalAddressBinary);
+        // while(logicalAddressHex.length()<6){
+        //     logicalAddressHex="0"+logicalAddressHex;
+        // }
+        // cout<<logicalAddressHex<<endl;
+        int randblock=rand()%6;
+        if(randblock==0){
+            logicalAddressHex = "01" + logicalAddressHex.substr(2,6);
+        }
+        else if(randblock==1){
+            logicalAddressHex = "04" + logicalAddressHex.substr(2,6);
+        }
+        else if(randblock==2){
+            logicalAddressHex = "0A" + logicalAddressHex.substr(2,6);
+        }
+        else if(randblock==3){
+            logicalAddressHex = "5E" + logicalAddressHex.substr(2,6);
+        }
+        else if(randblock==4){
+            logicalAddressHex = "40" + logicalAddressHex.substr(2,6);
+        }
+        else if(randblock==5){
+            logicalAddressHex = "B0" + logicalAddressHex.substr(2,6);
+        }
         logicalAddressHex = "0x" + logicalAddressHex;
         
-        int minPageSize = PAGE_SIZE / (1LL<<10);
-        int size = (rand() % 10 + 1) * minPageSize;
-        
+        pthread_mutex_lock(&fileMutex);
         traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << "KB" << endl;
+        pthread_mutex_unlock(&fileMutex);
     }
-    traceFile.close();
+    // for (int i = 0; i < 1000000; i++)
+    // {
+    //     // generate random taskID from 1 to numberOfTasks
+    //     int taskID = rand() % numberOfTasks + 1;
+        
+    //     int minPageSize = PAGE_SIZE / (1LL<<10);
+    //     int size = (rand() % 10 + 1) * minPageSize;
+    //     // generate random logical address from 0 to VIRTUAL_PAGES
+    //     long long logicalAddress = rand() % VIRTUAL_PAGES;
+        
+    //     // convert to binary
+    //     string logicalAddressBinary = intToBin(logicalAddress);
+
+    //     // add random bits for offset
+    //     for (int i = 0; i < BITS_PAGE_SIZE; i++)
+    //     {
+    //         // generate a random number from either 0 or 1
+    //         int randomNumber = rand() % 2;
+    //         logicalAddressBinary = logicalAddressBinary + to_string(randomNumber);
+    //     }
+        
+    //     // convert to hexadecimal
+    //     string logicalAddressHex = binToHex(logicalAddressBinary);
+    //     logicalAddressHex = "0x" + logicalAddressHex;
+        
+        
+    //     traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << "KB" << endl;
+    // }
 }
 
+void genTraceFile(int numberOfTasks)
+{
+ 
+    // create threads for each task
+    pthread_t threads[numberOfTasks];
+    traceFile.open("trace.txt");
+
+    pthread_mutex_init(&fileMutex, nullptr);
+    for (int i = 0; i < numberOfTasks; i++)
+    {
+        // pass taskID as argument
+        int x=i+1;
+        pthread_create(&threads[i], nullptr, &generateTraceFile, (void *)x);
+    }
+    for(int i=0;i<numberOfTasks;i++){
+        pthread_join(threads[i], nullptr);}
+}
 
 // function to convert integer to binary
 string intToBin(long long n)
