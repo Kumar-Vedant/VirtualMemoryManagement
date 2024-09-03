@@ -10,7 +10,8 @@
 
 using namespace std;
 
-class TaskMap {
+class TaskMap
+{
 public:
     TaskMap(int taskID, MemoryManager memoryManager);            // Constructor declaration
     void allocateMemory(string logicalAddress, long long size);  // Allocate memory for the task
@@ -23,13 +24,16 @@ private:
     MemoryManager memoryManager;  // Memory Manager object
 
     map<int, int> pageTable;  // Page table for the task
+    int* pageTable1;  // Page table for the task
+
 
     int pageTableHits;
     int pageTableMisses;
 
 };
 
-class TaskSingleLevel {
+class TaskSingleLevel
+{
 public:
     TaskSingleLevel(int taskID, MemoryManager memoryManager);  // Constructor declaration
     void allocateMemory(string logicalAddress, long long size);  // Allocate memory for the task
@@ -47,7 +51,8 @@ private:
 
 };
 
-class TaskTwoLevel {
+class TaskTwoLevel
+{
 public:
     TaskTwoLevel(int taskID, MemoryManager memoryManager);  // Constructor declaration
     void allocateMemory(string logicalAddress, long long size);  // Allocate memory for the task

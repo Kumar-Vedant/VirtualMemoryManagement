@@ -28,7 +28,7 @@ int main()
     
     // generate trace file with the format taskID:logicalAddress:size
     // generateTraceFile(numberOfTasks);
-    // genTraceFile(numberOfTasks);
+    genTraceFile(numberOfTasks);
     cout << "Trace file generated successfully!" << endl;
     // initialize the performance module
     PerformanceModule performanceModule;
@@ -47,7 +47,7 @@ int getNumberOfTasks()
 void *generateTraceFile(void *arg)
 {
     int taskID = (int)((size_t)arg);
-    for(int i=0;i<2000;i++){
+    for(int i=0;i<200;i++){
         int minPageSize = PAGE_SIZE / (1LL<<10);
         // random size from 1 to 10 times minPageSize
         int size = (rand() % 10 + 1) * minPageSize;
@@ -97,34 +97,6 @@ void *generateTraceFile(void *arg)
         traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << "KB" << endl;
         pthread_mutex_unlock(&fileMutex);
     }
-    // for (int i = 0; i < 1000000; i++)
-    // {
-    //     // generate random taskID from 1 to numberOfTasks
-    //     int taskID = rand() % numberOfTasks + 1;
-        
-    //     int minPageSize = PAGE_SIZE / (1LL<<10);
-    //     int size = (rand() % 10 + 1) * minPageSize;
-    //     // generate random logical address from 0 to VIRTUAL_PAGES
-    //     long long logicalAddress = rand() % VIRTUAL_PAGES;
-        
-    //     // convert to binary
-    //     string logicalAddressBinary = intToBin(logicalAddress);
-
-    //     // add random bits for offset
-    //     for (int i = 0; i < BITS_PAGE_SIZE; i++)
-    //     {
-    //         // generate a random number from either 0 or 1
-    //         int randomNumber = rand() % 2;
-    //         logicalAddressBinary = logicalAddressBinary + to_string(randomNumber);
-    //     }
-        
-    //     // convert to hexadecimal
-    //     string logicalAddressHex = binToHex(logicalAddressBinary);
-    //     logicalAddressHex = "0x" + logicalAddressHex;
-        
-        
-    //     traceFile << "T" << taskID << ":" << logicalAddressHex << ":" << size << "KB" << endl;
-    // }
 }
 
 void genTraceFile(int numberOfTasks)

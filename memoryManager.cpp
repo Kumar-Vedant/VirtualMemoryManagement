@@ -12,7 +12,7 @@ MemoryManager::MemoryManager()
 }
 
 vector<int> MemoryManager::allocatePages(int numberOfPages)
-{   
+{
     vector<int> physicalPagesAllocated;
 
     // Calculate number of pages required using size
@@ -29,14 +29,16 @@ vector<int> MemoryManager::allocatePages(int numberOfPages)
         }
 
         // If all required pages are allocated, break
-        if (physicalPagesAllocated.size() == numberOfPages) {
+        if (physicalPagesAllocated.size() == numberOfPages)
+        {
             break;
         }
     }
 
     // If no page is available, return error
-    if (physicalPagesAllocated.size() < numberOfPages) {
-        cout << "Error: Not enough memory available" << endl;
+    if (physicalPagesAllocated.size() < numberOfPages)
+    {
+        cout << "Not enough physical memory available" << endl;
     }
 
     // Return the indexes of the physical pages allocated

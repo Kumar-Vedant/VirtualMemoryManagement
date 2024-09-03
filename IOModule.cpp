@@ -37,37 +37,46 @@ void IOModule::AllocateMemoryToTask(string trace)
     // check if the task already exists
     // iterate through the tasks vectors to find the task with the given taskID
 
-    // page table as a map
-    for (int i = 0; i < tasksMap.size(); i++)
+    if(implementation == 0)
     {
-        if (tasksMap[i].getTaskID() == taskID)
+        // page table as a map
+        for (int i = 0; i < tasksMap.size(); i++)
         {
-            // allocate memory to the task
-            tasksMap[i].allocateMemory(logicalAddress, size);
-            taskMemoryAllocated[taskID] += size;
-            return;
+            if (tasksMap[i].getTaskID() == taskID)
+            {
+                // allocate memory to the task
+                tasksMap[i].allocateMemory(logicalAddress, size);
+                taskMemoryAllocated[taskID] += size;
+                return;
+            }
         }
     }
-    // single level page table
-    for (int i = 0; i < tasksSingleLevel.size(); i++)
+    else if (implementation == 1)
     {
-        if (tasksSingleLevel[i].getTaskID() == taskID)
+        // single level page table
+        for (int i = 0; i < tasksSingleLevel.size(); i++)
         {
-            // allocate memory to the task
-            tasksSingleLevel[i].allocateMemory(logicalAddress, size);
-            taskMemoryAllocated[taskID] += size;
-            return;
+            if (tasksSingleLevel[i].getTaskID() == taskID)
+            {
+                // allocate memory to the task
+                tasksSingleLevel[i].allocateMemory(logicalAddress, size);
+                taskMemoryAllocated[taskID] += size;
+                return;
+            }
         }
     }
-    // two level page table
-    for (int i = 0; i < tasksTwoLevel.size(); i++)
+    else
     {
-        if (tasksTwoLevel[i].getTaskID() == taskID)
+        // two level page table
+        for (int i = 0; i < tasksTwoLevel.size(); i++)
         {
-            // allocate memory to the task
-            tasksTwoLevel[i].allocateMemory(logicalAddress, size);
-            taskMemoryAllocated[taskID] += size;
-            return;
+            if (tasksTwoLevel[i].getTaskID() == taskID)
+            {
+                // allocate memory to the task
+                tasksTwoLevel[i].allocateMemory(logicalAddress, size);
+                taskMemoryAllocated[taskID] += size;
+                return;
+            }
         }
     }
     
@@ -76,34 +85,34 @@ void IOModule::AllocateMemoryToTask(string trace)
     if(implementation == 0)
     {
         TaskMap task(taskID, memoryManager);
-        tasksMap.push_back(task);
         
         // allocate memory to the task
         task.allocateMemory(logicalAddress, size);
-
         taskMemoryAllocated[taskID] = size;
+
+        tasksMap.push_back(task);
     }
     // if implementation is 1, create a TaskSingleLevel object
     else if(implementation == 1)
     {
         TaskSingleLevel task(taskID, memoryManager);
-        tasksSingleLevel.push_back(task);
 
         // allocate memory to the task
         task.allocateMemory(logicalAddress, size);
-
         taskMemoryAllocated[taskID] = size;
+
+        tasksSingleLevel.push_back(task);
     }
     // if implementation is 2, create a TaskTwoLevel object
-    else if(implementation == 2)
+    else
     {
         TaskTwoLevel task(taskID, memoryManager);
-        tasksTwoLevel.push_back(task);
 
         // allocate memory to the task
         task.allocateMemory(logicalAddress, size);
-    
         taskMemoryAllocated[taskID] = size;
+
+        tasksTwoLevel.push_back(task);
     }
 }
 

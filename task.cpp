@@ -16,6 +16,9 @@ long trimBinaryToDecimal(string binary, int bits);
 TaskMap::TaskMap(int taskID, MemoryManager memoryManager)
 {
     pageTableHits = 0;
+    pageTableMisses = 0;
+    pageTable1 = new int[VIRTUAL_PAGES];  // Page table for the task
+
     this->taskID = taskID;
     this->memoryManager = memoryManager;
 }
@@ -34,14 +37,15 @@ void TaskMap::allocateMemory(string logicalAddress, long long size)
     int numberOfPages = size / PAGE_SIZE;
     int hits = 0;
 
+    // convert the logical address to the virtual page number
     string binaryAddress = hexToBin(logicalAddress);
     long startingPageNumber = trimBinaryToDecimal(binaryAddress, BITS_PAGE_SIZE);
-    
-    // check if the page table has the physical page number for the virtual page number
+
+    // check if the page table has a physical page number for the virtual page number
     for (int i = 0; i < numberOfPages; i++)
     {
         // if the page is already in the page table, count as a page table hit
-        if (pageTable.count(startingPageNumber + i) == 1)
+        if (pageTable[startingPageNumber + i] != 0)
         {
             hits++;
         }
@@ -54,9 +58,11 @@ void TaskMap::allocateMemory(string logicalAddress, long long size)
 
     for (int i = 0; i < numberOfPages; i++)
     {
-        if (pageTable.count(startingPageNumber + i) == 0)
+        if (pageTable[startingPageNumber + i] == 0)
         {
             pageTable[startingPageNumber + i] = physicalPages[0];
+
+            pageTable1[startingPageNumber + i] = physicalPages[0];
             physicalPages.erase(physicalPages.begin());
         }
     }
@@ -70,14 +76,11 @@ int TaskMap::getTaskID()
 TaskSingleLevel::TaskSingleLevel(int taskID, MemoryManager memoryManager)
 {
     pageTableHits = 0;
+    pageTableMisses = 0;
     pageTable = new int[VIRTUAL_PAGES];  // Page table for the task
 
     this->taskID = taskID;
     this->memoryManager = memoryManager;
-
-    for (int i = 0; i < VIRTUAL_PAGES; i++) {
-        pageTable[i] = 0;
-    }
 }
 
 int TaskSingleLevel::getPageTableHits()
@@ -112,7 +115,7 @@ void TaskSingleLevel::allocateMemory(string logicalAddress, long long size)
 
     // call memory manager to allocate pages equal to page misses this time
     vector<int> physicalPages = memoryManager.allocatePages(numberOfPages - hits);
-
+    
     // store the physical page number in the page table
     for (int i = 0; i < numberOfPages; i++)
     {
@@ -135,11 +138,14 @@ int TaskSingleLevel::getTaskID()
 TaskTwoLevel::TaskTwoLevel(int taskID, MemoryManager memoryManager)
 {
     pageTableHits = 0;
+    pageTableMisses = 0;
     this->taskID = taskID;
     this->memoryManager = memoryManager;
 
-    for (int i = 0; i < PAGE_TABLE_SIZE_1; i++) {
-        for (int j = 0; j < PAGE_TABLE_SIZE_2; j++) {
+    for (int i = 0; i < PAGE_TABLE_SIZE_1; i++)
+    {
+        for (int j = 0; j < PAGE_TABLE_SIZE_2; j++)
+        {
             pageTable[i][j] = 0;
         }
     }

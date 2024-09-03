@@ -31,7 +31,8 @@
 
         // Report execution times and other details
         for (int i = 0; i < 3; i++) {
-            if (i == 0) {
+            if (i == 0)
+            {
                 cout << "Execution time for implementation : Map: " << executionTimes[i] << " microseconds" << endl;
                 map<int, int> taskMemory = ioModuleMap.getTaskMemoryAllocated();
                 cout << "Physical memory allocated to each task: " << endl;
@@ -52,7 +53,9 @@
                 }
                 cout << "Memory for Page Table: " <<  2 * VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << " Bytes" << endl;
                 cout << "Free physical memory: " << ioModuleMap.getFreePhysicalMemory() << " Bytes" << endl;
-            } else if (i == 1) {
+            }
+            else if (i == 1)
+            {
                 cout << "Execution time for implementation : Single-level: " << executionTimes[i] << " microseconds" << endl;
                 map<int, int> taskMemory = ioModuleSingleLevel.getTaskMemoryAllocated();
                 cout << "Physical memory allocated to each task: " << endl;
@@ -74,7 +77,8 @@
 
                 cout << "Memory for Page Table: " <<  VIRTUAL_PAGES * (BITS_VIRTUAL_SPACE / 8) << " Bytes" << endl;
                 cout << "Free physical memory: " << ioModuleSingleLevel.getFreePhysicalMemory() << " Bytes" << endl;
-            } else {
+            }
+            else{
                 cout << "Execution time for implementation : Two-level: " << executionTimes[i] << " microseconds" << endl;
                 map<int, int> taskMemory = ioModuleTwoLevel.getTaskMemoryAllocated();
                 cout << "Physical memory allocated to each task: " << endl;
